@@ -1,0 +1,51 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:mobx/mobx.dart';
+
+import '../../../models/user_model.dart';
+import '../../core/auth/auth_store.dart';
+
+class AuthHomePage extends StatefulWidget {
+  final AuthStore _authStore;
+
+  const AuthHomePage({
+    Key? key,
+    required AuthStore authStore,
+  })  : _authStore = authStore,
+        super(key: key);
+
+  @override
+  State<AuthHomePage> createState() => _AuthHomePageState();
+}
+
+class _AuthHomePageState extends State<AuthHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    reaction<UserModel?>((_) => widget._authStore.userLogged, (userLogger) {
+      if (userLogger != null && userLogger.name!.isNotEmpty) {
+        Modular.to.navigate('/home/');
+      } else {
+        Modular.to.navigate('/auth/login/');
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget._authStore.loadUserLogged();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircleAvatar(
+          radius: 120,
+          backgroundImage: AssetImage(
+            'assets/images/logo.jpg',
+          ),
+        ),
+      ),
+    );
+  }
+}
